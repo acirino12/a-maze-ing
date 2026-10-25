@@ -1,0 +1,12 @@
+# Lines starting with # must be ignored
+
+# Mandatory keys
+
+WIDTH=20
+HEIGHT=15
+ENTRY=1,1
+EXIT=19,14
+OUTPUT_FILE=maze.txt
+PERFECT=False
+
+# You may add additional keys (e.g., seed, algorithm, display mode) if useful
