@@ -12,7 +12,7 @@ class MazeGenerator:
     """
     Main generator class.
     Encapsulates grid creation, masking, carving, braiding, and solving.
-    
+
     Attributes:
     grid
     solution
