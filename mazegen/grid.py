@@ -124,6 +124,6 @@ class Grid:
         """
         Writes the hexadecimal maze matrix to a file or stream.
         """
-        for row in self._grid:
+        for row in self.each_row():
             line = "".join(cell.to_hex() for cell in row)
             print(line, file=file)
