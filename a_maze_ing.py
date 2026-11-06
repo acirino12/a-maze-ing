@@ -84,8 +84,12 @@ def main() -> None:
             print("Error", e, file=sys.stderr)
             sys.exit(1)
 
+    algorithm = config.get("ALGORITHM", "backtracker")
+
     try:
-        maze = MazeGenerator(width, height, entry, exit, perfect, seed)
+        maze = MazeGenerator(
+            width, height, entry, exit, perfect, seed, algorithm
+            )
     except ValueError as e:
         print(f"Error initializing maze: {e}", file=sys.stderr)
         sys.exit(1)

@@ -4,6 +4,7 @@ from typing import Optional, TextIO
 from .grid import Grid
 from .cell import Cell
 from .recursive_backtracker import recursive_backtracker
+from .kruskal import kruskal
 from .mask import mask_42
 from .dijkstra_distance import find_shortest_path, path_output
 
@@ -14,8 +15,8 @@ class MazeGenerator:
     Encapsulates grid creation, masking, carving, braiding, and solving.
 
     Attributes:
-    grid
-    solution
+        grid: The generated Grid instance.
+        solution: The solved shortest path string or sequence.
 
     Example usage:
     from mazegen import MazeGenerator
@@ -26,12 +27,15 @@ class MazeGenerator:
             entry=(0,0),
             exit=(15, 15),
             perfect=True,
-            seed=42
+            seed=42,
+            algorithm="backtracker",
             )
     maze.output()
     grid = maze.grid
     shortest_path = maze.solution
     """
+
+    SUPPORTED_ALGORITHMS = ("backtracker", "kruskal")
 
     def __init__(
         self,
@@ -41,6 +45,7 @@ class MazeGenerator:
         exit: tuple[int, int],
         perfect: bool = False,
         seed: Optional[int] = None,
+        algorithm: str = "backtracker",
     ) -> None:
         if not (self.valid_dimension(height) and self.valid_dimension(width)):
             raise ValueError("Maze's dimensions should be positive numbers")
@@ -48,6 +53,7 @@ class MazeGenerator:
         self.columns = width
         self.perfect = perfect
         self.seed = seed
+        self.algorithm = algorithm
         if self.seed is not None:
             random.seed(self.seed)
         self._grid = self.generate()
@@ -86,7 +92,10 @@ class MazeGenerator:
         """
         grid = Grid(self.rows, self.columns)
         mask_42(grid)
-        recursive_backtracker(grid)
+        if self.algorithm == "kruskal":
+            kruskal(grid)
+        else:
+            recursive_backtracker(grid)
         if not self.perfect:
             grid.braid()
         return grid

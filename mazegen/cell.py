@@ -7,7 +7,7 @@ class Cell:
 
     Attributes:
     row,
-    column: each cell ought to know where it lives within the grid
+    col: (column) each cell ought to know where it lives within the grid
     north,
     south,
     east,
