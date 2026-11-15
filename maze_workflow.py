@@ -1,4 +1,5 @@
 import sys
+from typing import Optional
 from mazegen import MazeGenerator
 
 
@@ -42,13 +43,12 @@ def parse_coordinate(coord_str: str) -> tuple[int, int]:
     return int(parts[0].strip()), int(parts[1].strip())
 
 
-def main() -> None:
+def maze_workflow(count: int) -> None:
     """Execute the primary maze generation and export workflow.
 
     Coordinates the configuration parsing, parameter validation, maze
     generation via MazeGenerator, writes the resulting maze structure
     and solution to the designated output file
-    ...and launches the interactive terminal visualization.
     """
 
     if len(sys.argv) != 2:
@@ -83,6 +83,8 @@ def main() -> None:
         except Exception as e:
             print("Error", e, file=sys.stderr)
             sys.exit(1)
+    if seed is not None:
+        seed += count
 
     algorithm = config.get("ALGORITHM", "backtracker")
 
@@ -107,4 +109,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    maze_workflow(0)
