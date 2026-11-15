@@ -1,6 +1,6 @@
 # ==============================================================================
 # A-Maze-ing Makefile
-# Created by acirino and dasancil for 42 School
+# Created for 42 School Curriculum (acirino & dasancil)
 # ==============================================================================
 
 PYTHON        := python3
@@ -13,38 +13,51 @@ PACKAGE_NAME  := mazegen
 
 .PHONY: all install package run lint lint-strict debug clean fclean re help
 
-# Default target
 all: help
 
-# Create virtual environment, install MLX and local package
+# 1. Environment creation and dependency installation (handles mlx-2.2.tgz automatically)
 install: $(VENV)/bin/activate
-	@echo "Installing build tools, linters, and MLX..."
-	@$(VENV_PIP) install --upgrade pip build flake8 mypy
+	@echo "Upgrading build and linting tools..."
+	@$(VENV_PIP) install --upgrade pip setuptools wheel build flake8 mypy
+	@echo "Installing MLX graphics library..."
 	@if [ -f mlx-*.whl ]; then \
-		echo "Installing local MLX wheel package..."; \
+		echo "Installing MLX from local wheel..."; \
 		$(VENV_PIP) install mlx-*.whl; \
-	elif [ -f mlx/mlx-*.whl ]; then \
-		echo "Installing MLX wheel from mlx/ directory..."; \
-		$(VENV_PIP) install mlx/mlx-*.whl; \
+	elif [ -f mlx-2.2.tgz ] || [ -f mlx-*.tgz ]; then \
+		TGZ_FILE=$$(ls mlx-*.tgz | head -n 1); \
+		echo "Building MLX from source archive ($$TGZ_FILE)..."; \
+		mkdir -p .mlx_build && tar -xzf $$TGZ_FILE -C .mlx_build --strip-components=1; \
+		if [ -f .mlx_build/configure.sh ]; then \
+			(cd .mlx_build && ./configure.sh && make); \
+			WHL=$$(find .mlx_build -name "*.whl" | head -n 1); \
+			if [ -n "$$WHL" ]; then \
+				$(VENV_PIP) install "$$WHL"; \
+			else \
+				$(VENV_PIP) install .mlx_build || $(VENV_PIP) install mlx || true; \
+			fi; \
+		else \
+			$(VENV_PIP) install .mlx_build || $(VENV_PIP) install mlx || true; \
+		fi; \
+		rm -rf .mlx_build; \
 	else \
-		echo "Local MLX wheel not found. Attempting install via pip..."; \
-		$(VENV_PIP) install mlx || echo "Warning: Could not fetch MLX from PyPI. Ensure mlx-*.whl is placed in root or mlx/"; \
+		echo "Attempting MLX installation via PyPI..."; \
+		$(VENV_PIP) install mlx || echo "Warning: MLX installation skipped or unavailable."; \
 	fi
-	@echo "Installing local mazegen package..."
+	@echo "Installing local mazegen package in editable mode..."
 	@$(VENV_PIP) install -e .
 
 $(VENV)/bin/activate:
 	@echo "Creating virtual environment..."
 	@$(PYTHON) -m venv $(VENV)
 
-# Build the pip-installable package and copy .whl and .tar.gz directly to repository root
+# 2. Package building required by 42 Subject Chapter VI (copies .whl & .tar.gz to root)
 package: install
 	@echo "Building reusable $(PACKAGE_NAME) package..."
 	@$(VENV_PYTHON) -m build
 	@cp dist/$(PACKAGE_NAME)-* .
-	@echo "Package (.whl and .tar.gz) built and copied directly to repository root."
+	@echo "Package files (.whl and .tar.gz) successfully placed at repository root."
 
-# Run the main program using virtual environment
+# 3. Running the application
 run:
 	@if [ ! -d "$(VENV)" ]; then \
 		echo "Virtual environment not found. Running 'make install' first..."; \
@@ -52,47 +65,44 @@ run:
 	fi
 	@$(VENV_PYTHON) $(MAIN_SCRIPT) $(CONFIG_FILE)
 
-# Code quality checks (flake8 and mypy)
+# 4. Mandatory 42 Subject Linter Rules (Chapter III.2)
 lint:
 	@echo "Running flake8 code style checks..."
-	@$(VENV_PYTHON) -m flake8 mazegen/ $(MAIN_SCRIPT) mlx_visualizer.py
+	@$(VENV_PYTHON) -m flake8 --exclude=.venv,build,dist,.git .
 	@echo "Running mypy static type analysis..."
-	@$(VENV_PYTHON) -m mypy mazegen/ $(MAIN_SCRIPT)
+	@$(VENV_PYTHON) -m mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs --exclude '(\.venv|build|dist|\.mlx_build)'
 
-# Strict type checking mode
 lint-strict:
 	@echo "Running strict mypy static type checking..."
-	@$(VENV_PYTHON) -m mypy --strict mazegen/ $(MAIN_SCRIPT)
+	@$(VENV_PYTHON) -m flake8 --exclude=.venv,build,dist,.git .
+	@$(VENV_PYTHON) -m mypy . --strict --ignore-missing-imports --exclude '(\.venv|build|dist|\.mlx_build)'
 
-# Run main program in pdb debug mode
+# 5. Debugging
 debug:
 	@$(VENV_PYTHON) -m pdb $(MAIN_SCRIPT) $(CONFIG_FILE)
 
-# Clean build artifacts, pycache, and temporary output files
+# 6. Cleanup
 clean:
-	@echo "Cleaning cache files and build outputs..."
-	@rm -rf build/ dist/ *.egg-info .mypy_cache .pytest_cache
+	@echo "Cleaning cache files, build artifacts, and output files..."
+	@rm -rf build/ dist/ *.egg-info .mypy_cache .pytest_cache .mlx_build
 	@find . -type d -name "__pycache__" -exec rm -rf {} +
 	@rm -f maze.txt
 
-# Full clean including virtual environment and root wheel/tarball packages
 fclean: clean
 	@echo "Performing full cleanup..."
 	@rm -rf $(VENV)
 	@rm -f $(PACKAGE_NAME)-*.whl $(PACKAGE_NAME)-*.tar.gz
 
-# Rebuild virtualenv and package from scratch
 re: fclean install package
 
-# Display help information
 help:
 	@echo "A-Maze-ing Makefile Targets:"
-	@echo "  make install     - Create .venv, install MLX, dependencies and mazegen package"
-	@echo "  make package     - Build package and place .whl / .tar.gz at repository root"
+	@echo "  make install     - Create .venv, build/install MLX from mlx-2.2.tgz/wheel, and install mazegen"
+	@echo "  make package     - Build mazegen wheel & tarball and copy to repo root"
 	@echo "  make run         - Execute a_maze_ing.py with config.txt"
-	@echo "  make lint        - Run flake8 and mypy static checks"
-	@echo "  make lint-strict - Run mypy with --strict flag"
+	@echo "  make lint        - Run flake8 and mypy according to 42 Subject Chapter III.2"
+	@echo "  make lint-strict - Run mypy with --strict"
 	@echo "  make debug       - Run main script under pdb debugger"
-	@echo "  make clean       - Remove temporary build files, caches, and maze.txt"
-	@echo "  make fclean      - Remove .venv, root wheel/tarball packages, and build artifacts"
-	@echo "  make re          - Full clean and rebuild"
+	@echo "  make clean       - Clean temporary build outputs and caches"
+	@echo "  make fclean      - Remove .venv, root package distributions, and build artifacts"
+	@echo "  make re          - Perform fclean, install, and package"
