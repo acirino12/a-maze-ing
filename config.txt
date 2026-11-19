@@ -2,16 +2,16 @@
 
 # Mandatory keys
 
-WIDTH=100
-HEIGHT=100
+WIDTH=21
+HEIGHT=21
 ENTRY=0,0
-EXIT=15,19
+EXIT=20,20
 OUTPUT_FILE=maze.txt
 PERFECT=False
 
 # Additional keys
 
-SEED=1
+SEED=42
 
 # supported algorithms are "backtracker"(default) and "kruskal"
 
