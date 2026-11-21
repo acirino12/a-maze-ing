@@ -523,9 +523,15 @@ def maze_visualizer(vs: Any) -> None:
                     i = (
                         ((y % scale) * 16 // scale) * 16
                         ) + ((x % scale) * 16 // scale)
-                    if start is True:
+                    if (
+                        start is True
+                        and bytes(trainer[i][3] != 0)
+                            ):
                         pixels[off:off + 4] = bytes(trainer[i])
-                    else:
+                    elif (
+                        start is False
+                        and bytes(trainer[i][3] != 0)
+                            ):
                         pixels[off:off + 4] = bytes(pokémon[i])
                     x += 1
                 x = x_coord * (scale * 2) + (scale * 1)
