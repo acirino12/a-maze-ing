@@ -18,3 +18,5 @@ dist/
 #Project
 maze_analyzer.py
 maze.txt
+
+*:Zone.Identifier

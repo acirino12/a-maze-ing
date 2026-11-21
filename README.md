@@ -4,7 +4,9 @@
 
 ## Description
 
-**A-Maze-ing** is a modular Python 3.10+ application and reusable library designed to generate, analyze, visualize, and export 2D labyrinths. Built in strict accordance with 42 school software engineering standards, the project features robust error handling, full static type annotations passing `mypy --strict`, compliance with `flake8`, and an event-driven graphical user interface powered by MiniLibX (MLX).
+**A-Maze-ing** is a modular Python 3.10+ application and reusable library designed to generate and visualize 2D labyrinths.
+
+Built in strict accordance with 42 school software engineering standards, the project features robust error handling, full static type annotations passing `mypy --strict`, compliance with `flake8`, and an event-driven graphical user interface powered by MiniLibX (MLX).
 
 The core engine supports two distinct generation modes governed by the configuration file:
 - **Perfect Maze Mode (`PERFECT=True`)**: Generates a classic spanning-tree maze containing exactly one unique topological path between any two points, with zero loops.
@@ -135,8 +137,14 @@ with open("maze.txt", "w") as f:
 
 The project features an interactive graphical display built using MiniLibX (MLX) with Python C-types bindings. The visualizer adheres to a Model-View-Controller (MVC) architecture:
 - **Model**: `mazegen.MazeGenerator` state and resolution engine.
-- **View**: `mlx_visualizer.py` off-screen double-buffering image renderer.
+- **View**: `maze_visualizer.py` off-screen double-buffering image renderer.
 - **Controller**: `a_maze_ing.py` event handler and state manager.
+
+### Pixel Art & Dynamic Texturing Mode
+In addition to flat color palette rendering, the MiniLibX visualizer features an adaptive **Pixel Art rendering engine**:
+- **Activation Condition**: The pixel art texture set automatically activates whenever the cell unit scale is an exact multiple of 16 (`scale % 16 == 0`, e.g., 16, 32, 48 pixels).
+- **Visual Enhancements**: When active, standard solid color blocks for walls and open passages are seamlessly substituted with detailed pixel art textures, start/end badges, and path overlays, maximizing visual fidelity on larger displays or smaller grid dimensions.
+
 
 ### Interactive Controls
 
@@ -198,18 +206,16 @@ make re
 ## Team & Project Management
 
 ### Member Roles & Contributions
-- **`acirino`**: Core maze generation engine (`mazegen`), grid data structures, Kruskal & Backtracker carving algorithms, configuration parser, CLI workflow, type hint compliance (`mypy --strict`), Makefile automation, and overall MVC architecture design.
-- **`dasancil`**: MiniLibX graphical visualizer (`mlx_visualizer.py`), off-screen image buffer rendering, color palette transformations, coordinate mapping, and keyboard event hook management.
+- **`acirino`**: Core maze generation engine (`mazegen`), grid data structures, Kruskal & Backtracker carving algorithms, configuration parser, Makefile automation, documentation.
+- **`dasancil`**: MiniLibX graphical visualizer (`mlx_visualizer.py`), off-screen image buffer rendering, color palette transformations, coordinate mapping and keyboard event hook management CLI workflow and overall MVC architecture design.
 
 ### Project Evolution & Planning
 1. **Phase 1 (Initial Setup)**: Grid representations and basic Recursive Backtracker carving.
 2. **Phase 2 (Packaging)**: Isolation of `mazegen` into a pip-installable module with `pyproject.toml` and `LICENSE.md`.
 3. **Phase 3 (Visualization & Integration)**: Implementation of MiniLibX GUI and refactoring into an MVC pattern to allow non-destructive state updates upon regeneration.
-4. **Phase 4 (Optimization & Refinement)**: Refactoring Kruskal's algorithm to use Jamis Buck's dual lookup maps, eliminating quadratic time grid scans.
 
 ### Successes & Lessons Learned
 - **What Worked Well**: Clean MVC decoupling allowed independent development of the generator and GUI without code collisions.
-- **Improvements**: Incorporating automated unit tests (`pytest`) for edge cases in grid dimensions and configuration validation.
 
 ---
 
@@ -222,9 +228,6 @@ make re
 - **Python Packaging User Guide**, *Packaging Python Projects*.
 
 ### AI Usage Disclosure
-In accordance with 42 AI Guidelines (Chapter II), AI assistance was utilized as a collaborative thought partner for:
-- Writing PEP 257-compliant docstrings and resolving static type hinting warnings in `mypy`.
-- Analyzing algorithm complexity for Kruskal's disjoint set implementation and evaluating dual-map optimization.
-- Structuring the MVC refactoring plan between `a_maze_ing.py` and `mlx_visualizer.py`.
+In accordance with 42 AI Guidelines (Chapter II), AI assistance was utilized as a collaborative thought partner.
 
 All AI-generated suggestions were reviewed, manually tested, and refactored by the team prior to integration.

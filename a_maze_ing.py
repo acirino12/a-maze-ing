@@ -10,7 +10,8 @@ class Visualizer:
     def __init__(
         self, m: Any, mlx: Any,
         x_window: int, y_window: int,
-        window: Any, seed_count: int
+        window: Any, seed_count: int,
+        scale: int
             ):
         self.m = m
         self.mlx = mlx
@@ -18,13 +19,14 @@ class Visualizer:
         self.y_window = y_window
         self.window = window
         self.seed_count = seed_count
+        self.scale = scale
 
 
 def main() -> None:
 
     """Initializing mlx and the window where the image will be visualized"""
 
-    vs = Visualizer(None, None, 1080, 1080, None, 0)
+    vs = Visualizer(None, None, 1080, 1080, None, 0, 16)
     vs.m = Mlx()
     vs.mlx = vs.m.mlx_init()
     if vs.mlx is None:
